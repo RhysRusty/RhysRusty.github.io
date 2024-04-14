@@ -16,19 +16,19 @@
     <!--icon-->
 
     
-        <link rel="shortcut icon" href="/favicon.ico">
+        <link rel="shortcut icon" href="/source/favicon.ico">
     
     
-        <link rel="icon" type="image/png" sizes="16x16" href="/%3Clink%20rel=%22icon%22%20type=%22image/png%22%20sizes=%2216x16%22%20href=%22/favicon-16x16.png%22%3E">
+        <link rel="icon" type="image/png" sizes="16x16" href="/source/favicon-16x16.png">
     
     
-        <link rel="icon" type="image/png" sizes="32x32" href="/%3Clink%20rel=%22icon%22%20type=%22image/png%22%20sizes=%2232x32%22%20href=%22/favicon-32x32.png%22%3E">
+        <link rel="icon" type="image/png" sizes="32x32" href="/source/favicon-32x32.png">
     
     
-        <link rel="apple-touch-icon" sizes="180x180" href="/%3Clink%20rel=%22apple-touch-icon%22%20sizes=%22180x180%22%20href=%22/apple-touch-icon.png%22%3E">
+        <link rel="apple-touch-icon" sizes="180x180" href="/source/apple-touch-icon.png">
     
     
-        <link rel="mask-icon" href="/%3Clink%20rel=%22mask-icon%22%20href=%22/safari-pinned-tab.svg%22%20color=%22#5bbad5%22%3E">
+        <link rel="mask-icon" href="/source/safari-pinned-tab.svg">
     
 
 
@@ -123,7 +123,7 @@
         
         
             <div class="cover__intro">
-                <p>Here! Welcome bitch!!!</p>
+                <p>Heey! Welcome bitch!!!</p>
  
             </div>
         
@@ -140,7 +140,7 @@
                     <div class="post-entry__header"></div>
 <div class="post-entry__content">
     <h2 class="post-entry__title">
-        here
+        Start UP
     </h2>
     
 </div>
@@ -149,8 +149,8 @@
     
  
 </div>
-<div class="post-entry__tags"></div> 
-<a href="/2024/04/13/here/" class="post-entry__link">here</a>
+<div class="post-entry__tags"><a href="/tags/Hexo/" class="post-tags__link button"># Hexo</a></div> 
+<a href="/2024/04/13/here/" class="post-entry__link">Start UP</a>
                 </div>
             
                 <div class='post-entry content-card'>
@@ -184,6 +184,25 @@
 
 
     
+    
+        <span id="leancloud_container_site_uv" hidden>
+            <span></span>
+            <span id="leancloud_value_site_uv"></span>
+            <span>Viewers</span>
+            
+                <span>&amp;nbsp;&amp;nbsp;&amp;nbsp;|</span>
+            
+        </span>
+    
+    
+        <span id="leancloud_container_site_pv" hidden>
+            <span></span>
+            <span id="leancloud_value_site_pv"></span>
+            <span>Views</span>
+            
+        </span>
+    
+
      
  
 
@@ -206,6 +225,16 @@
  
 
  
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement('script');
+            hm.src = 'https://hm.baidu.com/hm.js?07ba8c06858c98ad55c147490af57720';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+ 
 
  
 
@@ -219,6 +248,161 @@
 
 
     
+    <script>
+        (function () {
+            function getRecord(Counter, target) {
+                return new Promise(function (resolve, reject) {
+                    Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({target})))
+                        .then(response => response.json())
+                        .then(({results}) => {
+                            if (results && results.length > 0) {
+                                var record = results[0];
+                                resolve(record);
+                            } else {
+                                Counter('post', '/classes/Counter', {
+                                        target, time: 0
+                                    })
+                                    .then(response => response.json())
+                                    .then(record => {
+                                        resolve(record);
+                                    }).catch(error => {
+                                        console.error('Failed to create', error);
+                                        reject(error);
+                                    });
+                            }
+                        }).catch(error => {
+                            console.error('LeanCloud Counter Error', error);
+                            reject(error);
+                        });
+                })
+            }
+        
+            function buildIncrement(objectId) {
+                return {
+                    "method": "PUT",
+                    "path": `/1.1/classes/Counter/${ objectId }`,
+                    "body": {
+                        "time": {
+                            '__op': 'Increment',
+                            'amount': 1
+                        }
+                    }
+                }
+            }
+        
+            function increment(Counter, incrArr) {
+                return new Promise(function (resolve, reject) {
+                    Counter('post', '/batch', {
+                        "requests": incrArr
+                    }).then((res) => {
+                        resolve(res);
+                    }).catch(error => {
+                        console.error('Failed to save visitor count', error);
+                        reject(error);
+                    });
+                });
+            }
+        
+            function validUV() {
+                var key = 'LeanCloud_UV_Flag';
+                var flag = localStorage.getItem(key);
+                if (flag) {
+                    if (new Date().getTime() - parseInt(flag) <= 86400000) {
+                        return false;
+                    }
+                }
+                localStorage.setItem(key, new Date().getTime().toString());
+                return true;
+            }
+        
+            function addCount(Counter) {
+                var enableIncr = 'leancloud' === 'leancloud';
+                var getterArr = [];
+                var incrArr = [];
+                var pvCtn = document.querySelector('#leancloud_container_site_pv');
+                if (pvCtn || enableIncr) {
+                    var pvGetter = getRecord(Counter, 'site-pv').then((record) => {
+                        incrArr.push(buildIncrement(record.objectId))
+                        var ele = document.querySelector('#leancloud_value_site_pv');
+                        if (ele) {
+                            ele.innerText = record.time + 1;
+                            if (pvCtn) {
+                                pvCtn.style.display = 'inline';
+                            }
+                        }
+                    });
+                    getterArr.push(pvGetter);
+                }
+                var uvCtn = document.querySelector('#leancloud_container_site_uv');
+                if (uvCtn || enableIncr) {
+                    var uvGetter = getRecord(Counter, 'site-uv').then((record) => {
+                        var vuv = validUV();
+                        vuv && incrArr.push(buildIncrement(record.objectId))
+                        var ele = document.querySelector('#leancloud_value_site_uv');
+                        if (ele) {
+                            ele.innerText = record.time + (vuv ? 1 : 0);
+                            if (uvCtn) {
+                                uvCtn.style.display = 'inline';
+                            }
+                        }
+                    });
+                    getterArr.push(uvGetter);
+                }
+                if ('false' === 'true') {
+                    var viewCtn = document.querySelector('#leancloud_container_page_pv');
+                    if (viewCtn || enableIncr) {
+                        var target = decodeURI('/archives/2024/04/index.html');
+                        var viewGetter = getRecord(Counter, target).then((record) => {
+                            incrArr.push(buildIncrement(record.objectId))
+                            if (viewCtn) {
+                                var ele = document.querySelector('#leancloud_value_page_pv');
+                                if (ele) {
+                                    ele.innerText = (record.time || 0) + 1;
+                                    viewCtn.style.display = 'inline';
+                                }
+                            }
+                        });
+                        getterArr.push(viewGetter);
+                    }
+                }
+                if (enableIncr) {
+                    Promise.all(getterArr).then(() => {
+                        incrArr.length > 0 && increment(Counter, incrArr);
+                    })
+                }
+            }
+        
+            var app_id = '';
+            var app_key = '';
+            var server_url = '';
+        
+            function fetchData(api_server) {
+                var Counter = (method, url, data) => {
+                    return fetch(`${ api_server }/1.1${ url }`, {
+                        method,
+                        headers: {
+                                'X-LC-Id': app_id,
+                                'X-LC-Key': app_key,
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data)
+                    });
+                };
+                addCount(Counter);
+            }
+            var api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${ app_id.slice(0, 8).toLowerCase() }.api.lncldglobal.com`;
+            if (api_server) {
+                fetchData(api_server);
+            } else {
+                fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+                    .then(response => response.json())
+                    .then(({api_server}) => {
+                        fetchData('https://' + api_server);
+                    });
+            }
+        })();
+    </script>
+
  
 
  
